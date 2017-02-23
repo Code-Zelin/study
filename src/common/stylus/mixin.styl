@@ -8,17 +8,32 @@ border-1px($color)
     border-top: 1px solid $color
     left: 0
     bottom: 0
-bg-set(is_contain=true)
+center_position(x = false, y = false)
+  position: absolute
+  if x && !y
+    left: 50%
+    -webkit-transform: translateX(-50%)
+    transform:translateX(-50%)
+  else if y && !x
+    top: 50%
+    -webkit-transform: translateY(-50%)
+    transform:translateY(-50%)
+  else
+    top: 50%
+    left: 50%
+    -webkit-transform: translate(-50%,-50%)
+    transform:translate(-50%,-50%)
+bg_image($url)
+  @media (-webkit-max-device-pixel-ratio: 2),(max-device-pixel-ratio: 2)
+    background-image: url($url+"@2x.png")
+  @media (-webkit-max-device-pixel-ratio: 3),(max-device-pixel-ratio: 3)
+    background-image: url($url+"@3x.png")
+bg_set(ct = false)
   background-repeat: no-repeat
   background-position: center
-  if is_contain
-    -webkit-background-size: contain
+  if ct
     background-size: contain
+    -webkit-background-size contain
   else
-    -webkit-background-size: cover
     background-size: cover
-bg-image($url)
-  @media (-webkit-max-device-pixel-ratio: 2),(max-device-pixel-ratio: 2)
-    background-image: url($url+'@2x.png')
-  @media (-webkit-max-device-pixel-ratio: 3),(max-device-pixel-ratio: 3)
-    background-image: url($url+'@3x.png')
+    -webkit-background-size cover

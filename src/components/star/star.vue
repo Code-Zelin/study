@@ -1,8 +1,6 @@
 <template>
-  <div class="stars_box clearfix">
-    <span v-for="star in stars" :class="[starType, star]">
-
-    </span>
+  <div class="star_box">
+    <span v-for="star in stars" :class="[starType,star]"></span>
   </div>
 </template>
 
@@ -18,20 +16,18 @@
       score: Number
     },
     computed: {
-      starType () {
+      starType() {
         return 'star_' + this.size
       },
-      stars () {
+      stars() {
         let STARS_LIST = []
-        let score = this.score
-        score = Math.floor(score * 2) / 2
-        let decimal = score % 1 !== 0
-        console.log(decimal)
+        let score = Math.floor(this.score * 2) / 2
+        let decimal = score % 1 === 0
         let integer = Math.floor(score)
         for (let s = 0; s < integer; s++) {
           STARS_LIST.push(CLA_ON)
         }
-        if (decimal) {
+        if (!decimal) {
           STARS_LIST.push(CLA_HALF)
         }
         for (let s = STARS_LIST.length; s < STAR_NUM; s++) {
@@ -46,29 +42,57 @@
 <style lang="stylus" rel="stylesheet/stylus">
   @import "../../common/stylus/mixin.styl";
 
-  .stars_box{
+  .star_box{
     display: inline-block;
-    vertical-align: text-bottom;
+    vertical-align: text-bottom;;
     &>span{
-      display: inline-block;
-      bg-set();
-      &:last-child{
-        margin-right: 0;
-      }
-      &.star_24{
-        width: 20px;
-        height: 20px;
-        margin-right: 20px;
-        &.on{
-          bg-image(star24_on);
+        display: inline-block;
+        bg_set(true);
+        &.star_24{
+           width: 20px;
+           height:20px;
+           margin-right: 20px;
+           &.on{
+            bg_image(star24_on);
+           }
+           &.half{
+            bg_image(star24_half);
+           }
+           &.off{
+            bg_image(star24_off);
+           }
+         }
+        &.star_36{
+           width: 30px;
+           height: 30px;
+           margin-right: 30px;
+          &.on{
+           bg_image(star36_on);
+           }
+          &.half{
+           bg_image(star36_half);
+           }
+          &.off{
+           bg_image(star36_off);
+           }
         }
-        &.half{
-         bg-image(star24_half);
+        &.star_48{
+           width: 40px;
+           height: 40px;
+           margin-right: 40px;
+          &.on{
+           bg_image(star48_on);
+           }
+          &.half{
+           bg_image(star48_half);
+           }
+          &.off{
+           bg_image(star48_off);
+           }
+        }
+        &:last-child{
+           margin-right: 0;
          }
-        &.off{
-         bg-image(star24_off);
-         }
-      }
     }
   }
 </style>
