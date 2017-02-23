@@ -19,11 +19,13 @@
       </div>
     </div>
     <router-view></router-view>
+    <v_footer></v_footer>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
   import header from './components/header/header'
+  import footer from './components/footer/footer'
 
   export default {
     data() {
@@ -45,7 +47,8 @@
       })
     },
     components: {
-      v_header: header
+      v_header: header,
+      v_footer: footer
     }
   }
 </script>
@@ -54,6 +57,7 @@
   @import "common/stylus/mixin.styl";
 
   .vueApp{
+    height: 100%;
     .tab{
       display: flex;
       width:100%;

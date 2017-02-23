@@ -15,12 +15,12 @@
           {{details.name}}
         </div>
         <div class="goods_detail" v-for="(detail,index) in details.foods" :class="{goods_detail_line: details.foods.length>1 && index!==details.foods.length-1}">
-          <img :src="detail.icon" class="goods_img"/>
-          <div class="goods_detail_box">
+          <img :src="detail.icon" class="goods_img app_left"/>
+          <div class="goods_detail_box app_left">
             <div class="goods_name">
               {{detail.name}}
             </div>
-            <div class="goods_describe">
+            <div class="goods_describe" v-if="detail.description">
               {{detail.description}}
             </div>
             <div class="goods_sale">
@@ -31,7 +31,7 @@
                 好评率{{detail.rating}}%
               </span>
             </div>
-            <div class="goods_price">
+            <div class="goods_price clearfix">
               <span class="goods_price_new clearfix">
                 <i class="app_left">￥</i>
                 <b class="app_left">
@@ -44,14 +44,14 @@
                   {{detail.oldPrice}}
                 </b>
               </span>
+              <div class="goods_num app_right">
+                <span class="icon-remove_circle_outline"></span>
+                <span class="goods_num_span" v-if="goods_num>0">
+                  {{goods_num}}
+                </span>
+                <span class="icon-add_circle"></span>
+              </div>
             </div>
-          </div>
-          <div class="goods_num">
-            <i class="icon-remove-circle-outline"></i>
-            <span>
-
-            </span>
-            <i class="icon-add-circle"></i>
           </div>
         </div>
       </div>
@@ -65,7 +65,8 @@
   export default {
     data() {
       return {
-        goods: []
+        goods: [],
+        goods_num: 0
       }
     },
     created() {
@@ -88,6 +89,7 @@
 
   .goods {
     display: flex;
+    height: calc(100% - 174px - 44px);
     .goods_menu {
       flex: 0 0 80px;
       width: 80px;
@@ -131,6 +133,7 @@
     }
     .goods_list{
       flex:100%;
+      overflow: auto;
       .goods_item{
         .goods_title{
           height: 26px;
@@ -155,6 +158,7 @@
         .goods_detail{
           padding: 18px 0;
           margin: 0 18px;
+          overflow: hidden;
           &.goods_detail_line{
             border-1px(rgba(7,17,27,.1))
            }
@@ -162,22 +166,32 @@
             width: 55px;
             height: 55px;
             vertical-align: top;
+            margin-right: 5px;
           }
           .goods_detail_box{
             display: inline-block;
             font-size: 10px;
             color: rgb(147,153,159);
             line-height: 10px;
+            width: calc(100% - 60px);
+            &>div{
+                line-height: 100%;
+                margin-bottom: 8px;
+                &:last-child{
+                  margin-bottom: 0;
+                }
+            }
             .goods_name{
               font-size: 14px;
               color: rgb(7,17,27);
-              line-height: 14px;
             }
             .goods_describe{
-              margin: 8px 0;
+              font-size: 10px;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+              overflow: hidden;
             }
             .goods_sale{
-              margin-bottom: 8px;
               .goods_sale_left{
                 margin-right: 12px;
               }
@@ -211,6 +225,18 @@
                 }
                 i{
                   text-decoration: line-through;
+                }
+              }
+              .goods_num{
+                height: 24px;
+                line-height:24px;
+                span{
+                  font-size: 24px;
+                  color: rgb(0,160,220);
+                  &.goods_num_span{
+                    font-size: 10px;
+                    color: rgb(147,153,159);
+                  }
                 }
               }
             }
