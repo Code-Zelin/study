@@ -1,72 +1,76 @@
 <template>
   <div class="goods">
-    <div class="goods_menu">
+    <div class="goods_menu" id="menu-wrapper">
       <ul>
-        <li v-for="(menu, index) in goods">
+        <li v-for="(menu, index) in goods" :class="{menu_cur:index==currentIndex}">
           <div class="menu_div border-1px">
             <tag :num="3" :type="menu.type" v-if="menu.type !== -1"></tag>{{menu.name}}
           </div>
         </li>
       </ul>
     </div>
-    <div class="goods_list">
-      <div class="goods_item" v-for="details in goods">
-        <div class="goods_title">
-          {{details.name}}
-        </div>
-        <div class="goods_detail" v-for="(detail,index) in details.foods" :class="{goods_detail_line: details.foods.length>1 && index!==details.foods.length-1}">
-          <img :src="detail.icon" class="goods_img app_left"/>
-          <div class="goods_detail_box app_left">
-            <div class="goods_name">
-              {{detail.name}}
-            </div>
-            <div class="goods_describe" v-if="detail.description">
-              {{detail.description}}
-            </div>
-            <div class="goods_sale">
-              <span class="goods_sale_left">
-                月售{{detail.sellCount}}份
-              </span>
-              <span>
-                好评率{{detail.rating}}%
-              </span>
-            </div>
-            <div class="goods_price clearfix">
-              <span class="goods_price_new clearfix">
-                <i class="app_left">￥</i>
-                <b class="app_left">
-                   {{detail.price}}
-                </b>
-              </span>
-              <span class="goods_price_old clearfix" v-if="detail.oldPrice">
-                <i class="app_left">￥</i>
-                <b class="app_left">
-                  {{detail.oldPrice}}
-                </b>
-              </span>
-              <div class="goods_num app_right">
-                <span class="icon-remove_circle_outline"></span>
-                <span class="goods_num_span" v-if="goods_num>0">
-                  {{goods_num}}
+    <div class="goods_list" id="goods-wrapper">
+      <ul>
+        <li class="goods_item" v-for="details in goods">
+          <div class="goods_title">
+            {{details.name}}
+          </div>
+          <div class="goods_detail" v-for="(detail,index) in details.foods" :class="{goods_detail_line: details.foods.length>1 && index!==details.foods.length-1}">
+            <img :src="detail.icon" class="goods_img app_left"/>
+            <div class="goods_detail_box app_left">
+              <div class="goods_name">
+                {{detail.name}}
+              </div>
+              <div class="goods_describe" v-if="detail.description">
+                {{detail.description}}
+              </div>
+              <div class="goods_sale">
+                <span class="goods_sale_left">
+                  月售{{detail.sellCount}}份
                 </span>
-                <span class="icon-add_circle"></span>
+                <span>
+                  好评率{{detail.rating}}%
+                </span>
+              </div>
+              <div class="goods_price clearfix">
+                <span class="goods_price_new clearfix">
+                  <i class="app_left">￥</i>
+                  <b class="app_left">
+                     {{detail.price}}
+                  </b>
+                </span>
+                <span class="goods_price_old clearfix" v-if="detail.oldPrice">
+                  <i class="app_left">￥</i>
+                  <b class="app_left">
+                    {{detail.oldPrice}}
+                  </b>
+                </span>
+                <div class="goods_num app_right">
+                  <span class="icon-remove_circle_outline"></span>
+                  <span class="goods_num_span">
+                    0
+                  </span>
+                  <span class="icon-add_circle"></span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
+        </li>
+      </ul>
     </div>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
   import tag from '../tag/tag.vue'
+  import BScroll from 'better-scroll'
 
   export default {
     data() {
       return {
         goods: [],
-        goods_num: 0
+        goodsScrollTop: [],
+        menuTop: 0
       }
     },
     created() {
@@ -74,12 +78,56 @@
         let vueResponse = response.body
         if (vueResponse.errno === 0) {
           this.goods = vueResponse.data
-          console.log(this.goods)
+          this.$nextTick(() => {
+            this._initScroll()
+            this.goodsClientHeight()
+          })
         }
       })
     },
     components: {
       tag
+    },
+    computed: {
+      currentIndex() {
+        // 添加联动事件
+        let gst = this.goodsScrollTop
+        for (var gt = 0; gt < gst.length; gt++) {
+          let height1 = gst[gt]
+          let height2 = gst[gt + 1]
+          console.log(this.menuTop)
+          if (!gst[gt] && (this.menuTop >= height1 && this.menuTop < height2)) {
+            console.log(gt)
+            return gt
+          }
+        }
+      }
+    },
+    methods: {
+      _initScroll() {
+        // 初始化菜单和商品列表
+        this.menuScroll = new BScroll(document.getElementById('menu-wrapper'), {
+          probeType: 3
+        })
+        this.goodsScroll = new BScroll(document.getElementById('goods-wrapper'), {
+          probeType: 3
+        })
+
+        // 添加滚动事件
+        this.goodsScroll.on('scroll', (pos) => {
+          let scrollY = Math.abs(Math.round(pos.y))
+          this.menuTop = scrollY
+        })
+      },
+      goodsClientHeight() {
+        // 初始化goodsScrollTop数组
+        this.goodsScrollTop.push(0)
+        let goodsClientHeight = 0
+        for (let i = 0; i < document.getElementsByClassName('goods_item').length; i++) {
+          goodsClientHeight += document.getElementsByClassName('goods_item')[i].clientHeight
+          this.goodsScrollTop.push(goodsClientHeight)
+        }
+      }
     }
   }
 </script>
@@ -90,12 +138,12 @@
   .goods {
     display: flex;
     height: calc(100% - 174px - 44px);
+    overflow: hidden;
     .goods_menu {
       flex: 0 0 80px;
       width: 80px;
-      overflow-y: auto;
+      background: #f3f5f7;
       & > ul{
-          background: #f3f5f7;
           & > li {
                 display: table;
                 width: 80px;
@@ -110,16 +158,18 @@
                   font-weight: 200;
                   line-height: 14px;
                   border-1px(rgba(7,17,27,.1))
-                  &.menu_cur{
-                     background: #fff;
-                     &:after{
-                       display: none;
-                     }
-                   }
                   .sup_span{
                     margin-right: 4px;
                     vertical-align: text-bottom;
                   }
+                }
+                &.menu_cur{
+                   background: #fff;
+                   .menu_div{
+                     &:after{
+                        display: none;
+                      }
+                   }
                 }
                 &:last-child{
                   .menu_div{
@@ -133,7 +183,6 @@
     }
     .goods_list{
       flex:100%;
-      overflow: auto;
       .goods_item{
         .goods_title{
           height: 26px;
