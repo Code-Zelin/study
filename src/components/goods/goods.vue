@@ -58,14 +58,21 @@
         </li>
       </ul>
     </div>
+    <vfooter :seller="seller"></vfooter>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
-  import tag from '../tag/tag.vue'
+  import tag from 'components/tag/tag'
+  import vueFooter from 'components/footer/footer'
   import BScroll from 'better-scroll'
 
   export default {
+    props: {
+      seller: {
+        type: Object
+      }
+    },
     data() {
       return {
         goods: [],
@@ -86,7 +93,8 @@
       })
     },
     components: {
-      tag
+      vfooter: vueFooter,
+      tag: tag
     },
     computed: {
       currentIndex() {
@@ -145,7 +153,9 @@
     display: flex
     width: 100%
     height: calc(100% - 174px - 44px)
-    overflow: hidden
+    &>div
+      height: 100%
+      overflow: hidden
     .goods_menu
       flex: 0 0 80px
       width: 80px

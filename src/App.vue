@@ -18,14 +18,12 @@
         </router-link>
       </div>
     </div>
-    <router-view></router-view>
-    <v_footer :seller="seller"></v_footer>
+    <router-view :seller="seller"></router-view>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
-  import header from './components/header/header'
-  import footer from './components/footer/footer'
+  import header from 'components/header/header'
 
   export default {
     data() {
@@ -47,8 +45,7 @@
       })
     },
     components: {
-      v_header: header,
-      v_footer: footer
+      v_header: header
     }
   }
 </script>
