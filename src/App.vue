@@ -19,7 +19,7 @@
       </div>
     </div>
     <router-view></router-view>
-    <v_footer></v_footer>
+    <v_footer :seller="seller"></v_footer>
   </div>
 </template>
 
