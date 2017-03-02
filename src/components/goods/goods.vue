@@ -34,23 +34,19 @@
               </div>
               <div class="goods_price clearfix">
                 <span class="goods_price_new clearfix">
-                  <i class="app_left">￥</i>
+                  <i class="app_left">¥</i>
                   <b class="app_left">
                      {{detail.price}}
                   </b>
                 </span>
                 <span class="goods_price_old clearfix" v-if="detail.oldPrice">
-                  <i class="app_left">￥</i>
+                  <i class="app_left">¥</i>
                   <b class="app_left">
                     {{detail.oldPrice}}
                   </b>
                 </span>
                 <div class="goods_num app_right">
-                  <span class="icon-remove_circle_outline"></span>
-                  <span class="goods_num_span">
-                    0
-                  </span>
-                  <span class="icon-add_circle"></span>
+                  <span class="icon-remove_circle_outline"></span><span class="goods_num_span">0</span><span class="icon-add_circle"></span>
                 </div>
               </div>
             </div>
@@ -269,13 +265,18 @@
                 i
                   text-decoration: line-through
               .goods_num
+                width: 72px
                 height: 24px
-                line-height:24px
+                line-height: 24px
+                text-align:right
                 span
                   font-size: 24px
-                  color: rgb(0,160,220)
+                  color: rgb(0, 160, 220)
                   &.goods_num_span
-                    font-size: 10px
-                    color: rgb(147,153,159)
-                    vertical-align: top
+                   display: inline-block
+                   width: 24px
+                   text-align: center
+                   font-size: 10px
+                   color: rgb(147, 153, 159)
+                   vertical-align: top
 </style>
