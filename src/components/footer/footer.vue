@@ -1,25 +1,25 @@
 <template>
   <footer class="vue_footer">
-    <div class="footer_mask" v-if="maskIsShow" @click="maskIsShow = false"></div>
+    <div class="footer_mask" v-if="maskIsShow && selectGoods.length>0" @click="maskIsShow = false"></div>
     <transition name="shop_show">
-      <div class="footer_list_wrapper" v-if="maskIsShow">
+      <div class="footer_list_wrapper" v-if="maskIsShow && selectGoods.length>0">
         <h2 class="clearfix footer_list_title">
           购物车
-          <span class="footer_close app_right">
+          <span class="footer_close app_right" @click="closeList">
             清空
           </span>
         </h2>
         <div class="footer_list">
           <ul>
-            <li v-for="(good,index) in selectGoods" class="border-1px">
+            <li v-for="(good,index) in selectGoods" class="border-1px" v-if="good.count>0">
               <span class="f_l_goods_name">
                 {{good.name}}
               </span>
               <span class="f_l_goods_price">
                 ¥<span>{{good.price}}</span>
               </span>
-              <div class="goods_num app_right">
-                <span class="icon-remove_circle_outline" @click="subNum(index)"></span><span class="goods_num_span">{{good.num}}</span><span class="icon-add_circle" @click="addNum(index)"></span>
+              <div class="cartcontrol_wrapper">
+                <cartcontrol :food="good"></cartcontrol>
               </div>
             </li>
           </ul>
@@ -27,7 +27,7 @@
       </div>
     </transition>
     <div class="shop_car_wrapper">
-      <div class="shop_car_box" @click="maskIsShow = !maskIsShow">
+      <div class="shop_car_box" @click="shopClick">
         <div class="shop_car icon-shopping_cart" :class="{shop_car_blue:num>0}">
         <span class="shop_num" v-show="num>0">
           {{num}}
@@ -38,25 +38,19 @@
         <div class="shop_total" :class="{ shop_total_white:total>0 }">
           ¥{{total}}
         </div><div class="shop_line"></div><div class="shop_postage">
-        另需配送费¥{{seller.deliveryPrice}}元
+          另需配送费¥{{seller.deliveryPrice}}元
+        </div>
       </div>
-      </div>
-      <div class="shop_start_price shop_ok" v-if="total>=seller.minPrice">
-        去结算
-      </div>
-      <div class="shop_start_price" v-else>
-        <span v-if="total===0">
-          ¥{{seller.minPrice}}起送
-        </span>
-        <span v-else>
-          还差¥{{diffPrice}}起送
-        </span>
+      <div class="shop_start_price" :class="startPrice.class">
+        {{startPrice.html}}
       </div>
     </div>
   </footer>
 </template>
 
 <script type="text/ecmascript-6">
+  import cartcontrol from 'components/cartcontrol/cartcontrol'
+
   export default {
     props: {
       seller: {
@@ -69,32 +63,32 @@
             {
               name: '啦啦啦',
               price: 10,
-              num: 2
+              count: 2
             },
             {
               name: '踩踩踩踩踩',
               price: 5,
-              num: 1
+              count: 1
             },
             {
               name: '哦嗷嗷啊',
               price: 15,
-              num: 1
+              count: 1
             },
             {
               name: '请问请问',
               price: 2,
-              num: 2
+              count: 2
             },
             {
               name: '擦拭地方',
               price: 1,
-              num: 5
+              count: 5
             },
             {
               name: '尴尬的发',
               price: 4,
-              num: 5
+              count: 5
             }
           ]
         }
@@ -105,36 +99,51 @@
         maskIsShow: false
       }
     },
+    components: {
+      cartcontrol
+    },
     computed: {
+      // 商品总价
       total() {
         let total = 0
         this.selectGoods.forEach((element, index) => {
-          total += element.price * element.num
+          total += element.price * element.count
         })
         return total
       },
+      // 商品总数
       num() {
         let num = 0
         this.selectGoods.forEach((element, index) => {
-          num += element.num
+          num += element.count
         })
         return num
       },
-      diffPrice() {
-        let diff = this.seller.minPrice - this.total
-        return diff
+      // 起送价格
+      startPrice() {
+        let startPrice = {}
+        if (this.total >= this.seller.minPrice) {
+          startPrice.html = '去结算'
+          startPrice.class = 'shop_ok'
+        } else {
+          if (this.total === 0) {
+            startPrice.html = '¥' + this.seller.minPrice + '起送'
+          } else {
+            startPrice.html = '还差¥' + (this.seller.minPrice - this.total) + '起送'
+          }
+        }
+        return startPrice
       }
     },
     methods: {
-      addNum(index) {
-        this.selectGoods[index].num++
+      // 清空数组
+      closeList() {
+        this.selectGoods.splice(0, this.selectGoods.length)
       },
-      subNum(index) {
-        if (this.selectGoods[index].num === 1) {
-          this.selectGoods.splice(index, 1)
-        } else {
-          this.selectGoods[index].num--
-        }
+      // 购物车点击事件
+      shopClick() {
+        if (this.selectGoods.length === 0) return
+        this.maskIsShow = !this.maskIsShow
       }
     }
   }
@@ -165,33 +174,33 @@
         background: #141d27;
         box-sizing: border-box;
         border-radius: 50%;
-      .shop_car {
-        width: 44px;
-        height: 44px;
-        line-height: 44px;
-        background: rgba(255,255,255,0.4);
-        border-radius: 50%;
-        text-align: center;
-        font-size: 24px;
-        color: rgba(255,255,255,0.4);
-      &.shop_car_blue{
-         background: #00a0dc;
-         color: #fff;
-       }
-      .shop_num{
-        position: absolute;
-        top: 0;
-        left: 33px;
-        height: 16px;
-        line-height: 16px;
-        background: #f01414;
-        color: #fff;
-        border-radius: 8px;
-        font-size: 9px;
-        padding: 0 6px;
-        box-shadow: 0 4px 8px 0 rgba(0,0,0,.4);
-      }
-      }
+        .shop_car {
+          width: 44px;
+          height: 44px;
+          line-height: 44px;
+          background: rgba(255,255,255,0.4);
+          border-radius: 50%;
+          text-align: center;
+          font-size: 24px;
+          color: rgba(255,255,255,0.4);
+          &.shop_car_blue{
+             background: #00a0dc;
+             color: #fff;
+           }
+          .shop_num{
+            position: absolute;
+            top: 0;
+            left: 33px;
+            height: 16px;
+            line-height: 16px;
+            background: #f01414;
+            color: #fff;
+            border-radius: 8px;
+            font-size: 9px;
+            padding: 0 6px;
+            box-shadow: 0 4px 8px 0 rgba(0,0,0,.4);
+          }
+        }
       }
       .shop_center{
         flex:1;
@@ -230,16 +239,14 @@
         background: #2b333b;
         font-size: 12px;
         font-weight:700;
-      span{
         color: rgba(255,255,255,0.4);
         font-weight:700;
+        &.shop_ok{
+           background: #00b43c;
+           color: #fff;
+         }
+        }
       }
-      &.shop_ok{
-         background: #00b43c;
-         color: #fff;
-       }
-      }
-    }
     .footer_mask{
        position: fixed;
        z-index:-2;
@@ -331,23 +338,8 @@
                 font-weight:700;
               }
             }
-            .goods_num {
+            .cartcontrol_wrapper {
               flex: 0 0 72px;
-              height: 24px;
-              line-height: 24px;
-              text-align:right;
-              span {
-                 font-size: 24px;
-                 color: rgb(0, 160, 220);
-                  &.goods_num_span {
-                     display: inline-block;
-                     width: 24px;
-                     text-align: center;
-                     font-size: 10px;
-                     color: rgb(147, 153, 159);
-                     vertical-align: top;
-                  }
-              }
             }
           }
         }

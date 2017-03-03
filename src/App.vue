@@ -38,7 +38,6 @@
         response = response.body
         if (response.errno === 0) {
           this.seller = response.data
-          console.log(this.seller)
         }
       }, response => {
           // error callback

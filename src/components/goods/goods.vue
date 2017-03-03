@@ -45,8 +45,8 @@
                     {{detail.oldPrice}}
                   </b>
                 </span>
-                <div class="goods_num app_right">
-                  <span class="icon-remove_circle_outline"></span><span class="goods_num_span">0</span><span class="icon-add_circle"></span>
+                <div class="cartcontrol_wrapper app_right">
+                  <cartcontrol :food="detail"></cartcontrol>
                 </div>
               </div>
             </div>
@@ -54,13 +54,14 @@
         </li>
       </ul>
     </div>
-    <vfooter :seller="seller"></vfooter>
+    <vfooter :seller="seller" :selectGoods="selectGoods"></vfooter>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
   import tag from 'components/tag/tag'
   import vueFooter from 'components/footer/footer'
+  import cartcontrol from 'components/cartcontrol/cartcontrol'
   import BScroll from 'better-scroll'
 
   export default {
@@ -90,7 +91,8 @@
     },
     components: {
       vfooter: vueFooter,
-      tag: tag
+      tag: tag,
+      cartcontrol: cartcontrol
     },
     computed: {
       currentIndex() {
@@ -103,6 +105,19 @@
             return gt
           }
         }
+      },
+      selectGoods() {
+        let Goods = []
+        this.goods.forEach((good) => {
+          good.foods.forEach((food) => {
+            if (food.count) {
+              if (food.count > 0) {
+                Goods.push(food)
+              }
+            }
+          })
+        })
+        return Goods
       }
     },
     methods: {
@@ -112,6 +127,7 @@
           click: true
         })
         this.goodsScroll = new BScroll(document.getElementById('goods-wrapper'), {
+          click: true,
           probeType: 3
         })
 
@@ -264,19 +280,6 @@
                   text-decoration: line-through
                 i
                   text-decoration: line-through
-              .goods_num
+              .cartcontrol_wrapper
                 width: 72px
-                height: 24px
-                line-height: 24px
-                text-align:right
-                span
-                  font-size: 24px
-                  color: rgb(0, 160, 220)
-                  &.goods_num_span
-                   display: inline-block
-                   width: 24px
-                   text-align: center
-                   font-size: 10px
-                   color: rgb(147, 153, 159)
-                   vertical-align: top
 </style>
