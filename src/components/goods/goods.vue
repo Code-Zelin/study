@@ -46,7 +46,7 @@
                   </b>
                 </span>
                 <div class="cartcontrol_wrapper app_right">
-                  <cartcontrol :food="detail"></cartcontrol>
+                  <cartcontrol :food="detail" @add="addFood"></cartcontrol>
                 </div>
               </div>
             </div>
@@ -54,7 +54,7 @@
         </li>
       </ul>
     </div>
-    <vfooter :seller="seller" :selectGoods="selectGoods"></vfooter>
+    <vfooter ref="shopcart" :seller="seller" :selectGoods="selectGoods"></vfooter>
   </div>
 </template>
 
@@ -153,6 +153,12 @@
         let posY = this.listHeight[index]
         console.log(posY)
         this.goodsScroll.scrollTo(0, -posY, 500)
+      },
+      addFood(target) {
+        this._drop(target)
+      },
+      _drop(target) {
+        this.$refs.shopcart.drop(target)
       }
     }
   }

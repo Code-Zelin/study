@@ -30,6 +30,7 @@
         } else {
           this.food.count++
         }
+        this.$emit('add', event.target)
       },
       // 减数量
       subNum() {

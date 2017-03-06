@@ -16,6 +16,7 @@
     "vue-resource": "^1.2.0",
     "vue-router": "^2.2.0",
     "vue-style-loader": "^2.0.0",
+    "vuex": "^2.2.1",
     "webpack-dev-server": "^2.3.0"
   },
   "devDependencies": {

@@ -45,6 +45,14 @@
         {{startPrice.html}}
       </div>
     </div>
+    <div class="ball_wrapper" v-for="ball in balls">
+      <transition name="drop" :before-enter="beforeEnter" :enter="enter" :after-enter="afterEnter">
+        <div class="ball" v-show="ball.show">
+          <div class="inner inner-hook"></div>
+        </div>
+      </transition>
+    </div>
+
   </footer>
 </template>
 
@@ -59,44 +67,31 @@
       selectGoods: {
         type: Array,
         default() {
-          return [
-            {
-              name: '啦啦啦',
-              price: 10,
-              count: 2
-            },
-            {
-              name: '踩踩踩踩踩',
-              price: 5,
-              count: 1
-            },
-            {
-              name: '哦嗷嗷啊',
-              price: 15,
-              count: 1
-            },
-            {
-              name: '请问请问',
-              price: 2,
-              count: 2
-            },
-            {
-              name: '擦拭地方',
-              price: 1,
-              count: 5
-            },
-            {
-              name: '尴尬的发',
-              price: 4,
-              count: 5
-            }
-          ]
+          return []
         }
       }
     },
     data() {
       return {
-        maskIsShow: false
+        maskIsShow: false,
+        balls: [
+          {
+            show: false
+          },
+          {
+            show: false
+          },
+          {
+            show: false
+          },
+          {
+            show: false
+          },
+          {
+            show: false
+          }
+        ],
+        dropBalls: []
       }
     },
     components: {
@@ -144,6 +139,57 @@
       shopClick() {
         if (this.selectGoods.length === 0) return
         this.maskIsShow = !this.maskIsShow
+      },
+      // 下落
+      drop(el) {
+        for (let x = 0; x < this.balls.length; x++) {
+          let ball = this.balls[x]
+          if (!ball.show) {
+            ball.show = true
+            ball.el = el
+            this.dropBalls.push(ball)
+            return
+          }
+        }
+      },
+      // 过渡前
+      beforeEnter: function (el) {
+        let count = this.balls.length
+        while (count--) {
+          let ball = this.balls[count]
+          if (ball.show) {
+            let rect = ball.el.getBoundingClientRect()
+            let x = rect.left - 32
+            let y = -(window.innerHeight - rect.top - 22)
+            el.style.display = ''
+            el.style.webkitTransform = `translate3d(0, ${y}px,0)`
+            el.style.transform = `translate3d(0, ${y}px,0)`
+            let inner = el.querySelector('inner-hook')
+            inner.style.webkitTransform = `translate3d(${x}px, 0, 0)`
+            inner.style.transform = `translate3d(${x}px, 0, 0)`
+          }
+        }
+      },
+      // 过度完成
+      enter: function (el, done) {
+        /* eslint-disable no-unused-vars */
+        let rf = el.offsetHeight
+        this.$nextTick(() => {
+          el.style.webkitTransform = 'translate3d(0,0,0)'
+          el.style.transform = 'translate3d(0,0,0)'
+          let inner = el.querySelector('inner-hook')
+          inner.style.webkitTransform = 'translate3d(0, 0, 0)'
+          inner.style.transform = 'translate3d(0, 0, 0)'
+        })
+        done()
+      },
+      // 过度之后
+      afterEnter: function (el) {
+        let ball = this.dropBalls.shift()
+        if (ball.show) {
+          ball.show = false
+          ball.el.style.display = 'none'
+        }
       }
     }
   }
@@ -342,6 +388,24 @@
               flex: 0 0 72px;
             }
           }
+        }
+      }
+    }
+    .ball_wrapper{
+      .ball{
+        position: fixed;
+        left: 32px;
+        bottom: 22px;
+        z-index: 99;
+        &.drop-transition{
+          transition: all 0.4s;
+        }
+        .inner{
+          width: 16px;
+          height: 16px;
+          border-radius: 50%;
+          background: rgb(0,160,220);
+          transition: all 0.4s;
         }
       }
     }
