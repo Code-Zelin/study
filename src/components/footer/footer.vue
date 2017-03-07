@@ -45,8 +45,8 @@
         {{startPrice.html}}
       </div>
     </div>
-    <div class="ball_wrapper" v-for="ball in balls">
-      <transition name="drop" :before-enter="beforeEnter" :enter="enter" :after-enter="afterEnter">
+    <div class="ball_wrapper">
+      <transition name="drop" @before-enter="beforeEnter" @enter="enter" @after-enter="afterEnter" v-for="ball in balls">
         <div class="ball" v-show="ball.show">
           <div class="inner inner-hook"></div>
         </div>
@@ -161,10 +161,10 @@
             let rect = ball.el.getBoundingClientRect()
             let x = rect.left - 32
             let y = -(window.innerHeight - rect.top - 22)
-            el.style.display = ''
-            el.style.webkitTransform = `translate3d(0, ${y}px,0)`
-            el.style.transform = `translate3d(0, ${y}px,0)`
-            let inner = el.querySelector('inner-hook')
+            el.style.display = 'block'
+            el.style.webkitTransform = `translate3d(0, ${y}px, 0)`
+            el.style.transform = `translate3d(0, ${y}px, 0)`
+            let inner = el.querySelector('.inner-hook')
             inner.style.webkitTransform = `translate3d(${x}px, 0, 0)`
             inner.style.transform = `translate3d(${x}px, 0, 0)`
           }
@@ -175,20 +175,19 @@
         /* eslint-disable no-unused-vars */
         let rf = el.offsetHeight
         this.$nextTick(() => {
-          el.style.webkitTransform = 'translate3d(0,0,0)'
-          el.style.transform = 'translate3d(0,0,0)'
-          let inner = el.querySelector('inner-hook')
+          el.style.webkitTransform = 'translate3d(0, 0, 0)'
+          el.style.transform = 'translate3d(0, 0, 0)'
+          let inner = el.querySelector('.inner-hook')
           inner.style.webkitTransform = 'translate3d(0, 0, 0)'
           inner.style.transform = 'translate3d(0, 0, 0)'
         })
-        done()
       },
       // 过度之后
       afterEnter: function (el) {
+        console.log(el)
         let ball = this.dropBalls.shift()
         if (ball.show) {
           ball.show = false
-          ball.el.style.display = 'none'
         }
       }
     }
@@ -397,15 +396,13 @@
         left: 32px;
         bottom: 22px;
         z-index: 99;
-        &.drop-transition{
-          transition: all 0.4s;
-        }
+        transition: all 0.6s cubic-bezier(.25,.1,0.6,.31);
         .inner{
           width: 16px;
           height: 16px;
           border-radius: 50%;
           background: rgb(0,160,220);
-          transition: all 0.4s;
+          transition: all 0.6s linear;
         }
       }
     }
