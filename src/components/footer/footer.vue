@@ -1,15 +1,15 @@
 <template>
   <footer class="vue_footer">
-    <div class="footer_mask" v-if="maskIsShow && selectGoods.length>0" @click="maskIsShow = false"></div>
+    <div class="footer_mask" v-if="listShow" @click="hide"></div>
     <transition name="shop_show">
-      <div class="footer_list_wrapper" v-if="maskIsShow && selectGoods.length>0">
+      <div class="footer_list_wrapper" v-if="listShow">
         <h2 class="clearfix footer_list_title">
           购物车
           <span class="footer_close app_right" @click="closeList">
             清空
           </span>
         </h2>
-        <div class="footer_list">
+        <div class="footer_list" ref="footerList">
           <ul>
             <li v-for="(good,index) in selectGoods" class="border-1px" v-if="good.count>0">
               <span class="f_l_goods_name">
@@ -19,7 +19,7 @@
                 ¥<span>{{good.price}}</span>
               </span>
               <div class="cartcontrol_wrapper">
-                <cartcontrol :food="good"></cartcontrol>
+                <cartcontrol :food="good" @add="addFood"></cartcontrol>
               </div>
             </li>
           </ul>
@@ -57,6 +57,7 @@
 </template>
 
 <script type="text/ecmascript-6">
+  import BScroll from 'better-scroll'
   import cartcontrol from 'components/cartcontrol/cartcontrol'
 
   export default {
@@ -73,7 +74,7 @@
     },
     data() {
       return {
-        maskIsShow: false,
+        maskIsShow: true,
         balls: [
           {
             show: false
@@ -128,17 +129,44 @@
           }
         }
         return startPrice
+      },
+      // 购物车是否显示
+      listShow() {
+        if (this.selectGoods.length === 0) {
+          this.maskIsShow = true
+          return false
+        }
+        let show = !this.maskIsShow
+        if (show) {
+          this.$nextTick(() => {
+            if (!this.scroll) {
+              // 购物车列表初始化
+              this.scroll = new BScroll(this.$refs.footerList, {
+                click: true
+              })
+            } else {
+              this.scroll.refresh()
+            }
+          })
+        }
+        return show
       }
     },
     methods: {
       // 清空数组
       closeList() {
-        this.selectGoods.splice(0, this.selectGoods.length)
+        this.selectGoods.forEach((food) => {
+          food.count = 0
+        })
       },
-      // 购物车点击事件
+      addFood(target) {
+        this.drop(target)
+      },
       shopClick() {
-        if (this.selectGoods.length === 0) return
         this.maskIsShow = !this.maskIsShow
+      },
+      hide() {
+        this.maskIsShow = true
       },
       // 下落
       drop(el) {
@@ -180,14 +208,15 @@
           let inner = el.querySelector('.inner-hook')
           inner.style.webkitTransform = 'translate3d(0, 0, 0)'
           inner.style.transform = 'translate3d(0, 0, 0)'
+          el.addEventListener('transitionend', done)
         })
       },
       // 过度之后
       afterEnter: function (el) {
-        console.log(el)
         let ball = this.dropBalls.shift()
-        if (ball.show) {
+        if (ball) {
           ball.show = false
+          el.style.display = 'none'
         }
       }
     }
@@ -353,7 +382,7 @@
         }
       }
       .footer_list{
-        overflow-y: auto;
+        overflow: hidden;
         max-height: 190px;
         ul{
           padding: 0 18px 18px;
@@ -396,7 +425,7 @@
         left: 32px;
         bottom: 22px;
         z-index: 99;
-        transition: all 0.6s cubic-bezier(.25,.1,0.6,.31);
+        transition: all 0.6s cubic-bezier(0,-0.47,.96,-0.3);
         .inner{
           width: 16px;
           height: 16px;
