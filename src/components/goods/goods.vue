@@ -54,7 +54,7 @@
         </li>
       </ul>
     </div>
-    <vfooter ref="shopcart" :seller="seller" :selectGoods="selectGoods"></vfooter>
+    <vfooter ref="shopcart"  :deliveryPrice="seller.deliveryPrice" :minPrice="seller.minPrice" :selectFoods="selectGoods"></vfooter>
   </div>
 </template>
 

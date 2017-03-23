@@ -1,8 +1,34 @@
 <template>
   <footer class="vue_footer">
-    <div class="footer_mask" v-if="listShow" @click="hide"></div>
+    <div class="shop_car_wrapper">
+      <div class="shop_car_box" @click="shopClick">
+        <div class="shop_car icon-shopping_cart" :class="{shop_car_blue:num>0}">
+        <span class="shop_num" v-show="num>0">
+          {{num}}
+        </span>
+        </div>
+      </div>
+      <div class="shop_center clearfix">
+        <div class="shop_total" :class="{ shop_total_white:total>0 }">
+          ¥{{total}}
+        </div><div class="shop_line"></div><div class="shop_postage">
+          另需配送费¥{{deliveryPrice}}元
+        </div>
+      </div>
+      <div class="shop_start_price" :class="startPrice.class">
+        {{startPrice.html}}
+      </div>
+    </div>
+    <div class="ball_wrapper">
+      <transition name="drop" @before-enter="beforeEnter" @enter="enter" @after-enter="afterEnter" v-for="ball in balls">
+        <div class="ball" v-show="ball.show">
+          <div class="inner inner-hook"></div>
+        </div>
+      </transition>
+    </div>
+    <div class="footer_mask" v-show="listShow" @click="hide"></div>
     <transition name="shop_show">
-      <div class="footer_list_wrapper" v-if="listShow">
+      <div class="footer_list_wrapper" v-show="listShow">
         <h2 class="clearfix footer_list_title">
           购物车
           <span class="footer_close app_right" @click="closeList">
@@ -11,7 +37,7 @@
         </h2>
         <div class="footer_list" ref="footerList">
           <ul>
-            <li v-for="(good,index) in selectGoods" class="border-1px" v-if="good.count>0">
+            <li v-for="good in selectFoods" class="border-1px" v-if="good.count>0">
               <span class="f_l_goods_name">
                 {{good.name}}
               </span>
@@ -26,33 +52,6 @@
         </div>
       </div>
     </transition>
-    <div class="shop_car_wrapper">
-      <div class="shop_car_box" @click="shopClick">
-        <div class="shop_car icon-shopping_cart" :class="{shop_car_blue:num>0}">
-        <span class="shop_num" v-show="num>0">
-          {{num}}
-        </span>
-        </div>
-      </div>
-      <div class="shop_center clearfix">
-        <div class="shop_total" :class="{ shop_total_white:total>0 }">
-          ¥{{total}}
-        </div><div class="shop_line"></div><div class="shop_postage">
-          另需配送费¥{{seller.deliveryPrice}}元
-        </div>
-      </div>
-      <div class="shop_start_price" :class="startPrice.class">
-        {{startPrice.html}}
-      </div>
-    </div>
-    <div class="ball_wrapper">
-      <transition name="drop" @before-enter="beforeEnter" @enter="enter" @after-enter="afterEnter" v-for="ball in balls">
-        <div class="ball" v-show="ball.show">
-          <div class="inner inner-hook"></div>
-        </div>
-      </transition>
-    </div>
-
   </footer>
 </template>
 
@@ -62,13 +61,22 @@
 
   export default {
     props: {
-      seller: {
-        type: Object
-      },
-      selectGoods: {
+      selectFoods: {
         type: Array,
         default() {
           return []
+        }
+      },
+      deliveryPrice: {
+        type: Number,
+        default() {
+          return 0
+        }
+      },
+      minPrice: {
+        type: Number,
+        default() {
+          return 0
         }
       }
     },
@@ -102,7 +110,7 @@
       // 商品总价
       total() {
         let total = 0
-        this.selectGoods.forEach((element, index) => {
+        this.selectFoods.forEach((element, index) => {
           total += element.price * element.count
         })
         return total
@@ -110,7 +118,7 @@
       // 商品总数
       num() {
         let num = 0
-        this.selectGoods.forEach((element, index) => {
+        this.selectFoods.forEach((element, index) => {
           num += element.count
         })
         return num
@@ -118,21 +126,21 @@
       // 起送价格
       startPrice() {
         let startPrice = {}
-        if (this.total >= this.seller.minPrice) {
+        if (this.total >= this.minPrice) {
           startPrice.html = '去结算'
           startPrice.class = 'shop_ok'
         } else {
           if (this.total === 0) {
-            startPrice.html = '¥' + this.seller.minPrice + '起送'
+            startPrice.html = '¥' + this.minPrice + '起送'
           } else {
-            startPrice.html = '还差¥' + (this.seller.minPrice - this.total) + '起送'
+            startPrice.html = '还差¥' + (this.minPrice - this.total) + '起送'
           }
         }
         return startPrice
       },
       // 购物车是否显示
       listShow() {
-        if (this.selectGoods.length === 0) {
+        if (this.selectFoods.length === 0) {
           this.maskIsShow = true
           return false
         }
@@ -153,21 +161,6 @@
       }
     },
     methods: {
-      // 清空数组
-      closeList() {
-        this.selectGoods.forEach((food) => {
-          food.count = 0
-        })
-      },
-      addFood(target) {
-        this.drop(target)
-      },
-      shopClick() {
-        this.maskIsShow = !this.maskIsShow
-      },
-      hide() {
-        this.maskIsShow = true
-      },
       // 下落
       drop(el) {
         for (let x = 0; x < this.balls.length; x++) {
@@ -179,6 +172,24 @@
             return
           }
         }
+      },
+      shopClick() {
+        if (this.selectFoods.length === 0) {
+          return
+        }
+        this.maskIsShow = !this.maskIsShow
+      },
+      hide() {
+        this.maskIsShow = true
+      },
+      // 清空数组
+      closeList() {
+        this.selectFoods.forEach((food) => {
+          food.count = 0
+        })
+      },
+      addFood(target) {
+        this.drop(target)
       },
       // 过渡前
       beforeEnter: function (el) {
@@ -331,32 +342,6 @@
        background: rgba(7,17,27,0.8);
        filter: blur(10px);
     }
-    .shop_show-enter-active{
-      animation: shop_in .5s;
-    }
-    .shop_show-leave-active{
-      animation: shop_out .5s;
-    }
-    @keyframes shop_in {
-      0% {
-        opacity: 0;
-        transform: translateY(0)
-      }
-      100% {
-        opacity: 1;
-        transform: translateY(-100%)
-      }
-    }
-    @keyframes shop_out {
-      0% {
-        opacity: 1;
-        transform: translateY(-100%)
-      }
-      100% {
-        opacity: 0;
-        transform: translateY(0)
-      }
-    }
     .footer_list_wrapper{
       position: absolute;
       z-index:-2;
@@ -367,6 +352,12 @@
       max-height: 230px;
       min-height: 90px;
       background: #fff;
+      &.shop_show-enter-active, &.shop_show-leave-active {
+        transition: all 0.5s
+      }
+      &.shop_show-enter, &.shop_show-leave-active{
+        transform: translate3d(0, 0, 0)
+      }
       .footer_list_title{
         height: 40px;
         width: 100%;
