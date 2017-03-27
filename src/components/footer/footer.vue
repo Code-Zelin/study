@@ -241,6 +241,7 @@
     width: 100%;
     height: 48px;
     position: fixed;
+    z-index:99;
     bottom: 0;
     .shop_car_wrapper{
       width:100%;

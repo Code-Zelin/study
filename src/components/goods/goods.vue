@@ -16,9 +16,9 @@
             {{details.name}}
           </div>
           <div class="goods_detail" v-for="(detail,index) in details.foods" :class="{goods_detail_line: details.foods.length>1 && index!==details.foods.length-1}">
-            <img :src="detail.icon" class="goods_img app_left"/>
+            <img :src="detail.icon" class="goods_img app_left" @click="_food(detail)"/>
             <div class="goods_detail_box app_left">
-              <div class="goods_name">
+              <div class="goods_name" @click="_food(detail)">
                 {{detail.name}}
               </div>
               <div class="goods_describe" v-if="detail.description">
@@ -55,6 +55,7 @@
       </ul>
     </div>
     <vfooter ref="shopcart"  :deliveryPrice="seller.deliveryPrice" :minPrice="seller.minPrice" :selectFoods="selectGoods"></vfooter>
+    <foodWrapper :food="food" v-show="showFood" ref="foodWrapper" @hide="hideFood"></foodWrapper>
   </div>
 </template>
 
@@ -63,6 +64,7 @@
   import vueFooter from 'components/footer/footer'
   import cartcontrol from 'components/cartcontrol/cartcontrol'
   import BScroll from 'better-scroll'
+  import food from 'components/food/food'
 
   export default {
     props: {
@@ -74,7 +76,9 @@
       return {
         goods: [],
         listHeight: [],
-        scrollY: 0
+        scrollY: 0,
+        food: {},
+        showFood: false
       }
     },
     created() {
@@ -92,7 +96,8 @@
     components: {
       vfooter: vueFooter,
       tag: tag,
-      cartcontrol: cartcontrol
+      cartcontrol: cartcontrol,
+      foodWrapper: food
     },
     computed: {
       currentIndex() {
@@ -159,6 +164,13 @@
       },
       _drop(target) {
         this.$refs.shopcart.drop(target)
+      },
+      _food(element) {
+        this.food = element
+        this.showFood = true
+      },
+      hideFood(target) {
+        this.showFood = false
       }
     }
   }
