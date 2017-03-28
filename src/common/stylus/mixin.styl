@@ -1,4 +1,4 @@
-border-1px($color)
+border-1px($color, top = false)
   position: relative
   &:after
     content: ''
@@ -8,6 +8,15 @@ border-1px($color)
     border-top: 1px solid $color
     left: 0
     bottom: 0
+  if top
+    &:before
+      content: ''
+      display: block
+      position: absolute
+      width: 100%
+      border-top: 1px solid $color
+      left: 0
+      top: 0
 center_position(x = false, y = false)
   position: absolute
   if x && !y

@@ -4,7 +4,7 @@
       <span class="icon-remove_circle_outline app_left" @click="subNum" v-show="food.count>0"></span>
     </transition>
     <transition name="addCart" v-if="!food.count && isDetail">
-      <span class="add_shopcart app_right" @click="addNum">加入购物车</span>
+      <span class="add_shopcart" @click="addNum">加入购物车</span>
     </transition>
     <transition name="addNum" v-else>
       <span class="icon-add_circle app_right" @click="addNum"></span>
@@ -33,7 +33,7 @@
     methods: {
       // 家数量
       addNum(event) {
-        if (!event._constructed && !this.isDetail) {
+        if (!event._constructed) {
           return
         }
         if (!this.food.count) {
@@ -117,29 +117,31 @@
       }
     }
     .addCart-enter-active{
-      animation: count_in .5s;
+      animation: addCart_in .5s;
     }
     .addCart-leave-active{
-      animation: count_out .5s;
+      animation: addCart_out .5s;
+    }
+    .addNum-enter-active{
+      animation: addCart_in .5s;
+    }
+    .addNum-leave-active{
+      animation: addCart_out .5s;
     }
     @keyframes addCart_in {
       0% {
         opacity: 0;
-        width: 0px;
       }
       100% {
         opacity: 1;
-        width: 24px;
       }
     }
     @keyframes addCart_out {
       0% {
         opacity: 1;
-        width: 24px;
       }
       100% {
         opacity: 0;
-        width: 0px;
       }
     }
     span {
