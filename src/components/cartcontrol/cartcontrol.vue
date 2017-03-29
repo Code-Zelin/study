@@ -41,9 +41,7 @@
         } else {
           this.food.count++
         }
-        if (!this.isDetail) {
-          this.$emit('add', event.target)
-        }
+        this.$emit('add', event.target)
       },
       // 减数量
       subNum() {

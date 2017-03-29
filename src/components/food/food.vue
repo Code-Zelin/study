@@ -1,21 +1,21 @@
 <template>
   <div class="food_wrapper" ref="foodWrapper">
-    <div class="back icon-arrow_lift" @click="_hide"></div>
-    <img :src="food.image">
-    <div class="food_top border-1px">
-      <div class="goods_detail_box">
-        <div class="goods_name">
-          {{food.name}}
-        </div>
-        <div class="goods_sale">
+    <div>
+      <img :src="food.image">
+      <div class="food_top border-1px">
+        <div class="goods_detail_box">
+          <div class="goods_name">
+            {{food.name}}
+          </div>
+          <div class="goods_sale">
           <span class="goods_sale_left">
             月售{{food.sellCount}}份
           </span>
           <span>
             好评率{{food.rating}}%
           </span>
-        </div>
-        <div class="goods_price clearfix">
+          </div>
+          <div class="goods_price clearfix">
           <span class="goods_price_new app_left">
             <i class="app_left">¥</i>
             <b class="app_left">
@@ -28,48 +28,50 @@
               {{food.oldPrice}}
             </b>
           </span>
-          <div class="cartcontrol_wrapper app_right">
-            <cartcontrol :food="food" :isDetail="isDetail"></cartcontrol>
+            <div class="cartcontrol_wrapper app_right">
+              <cartcontrol :food="food" @add="addFood" :isDetail="isDetail"></cartcontrol>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-    <div class="food_center border-1px">
-      <h2 class="food_title">商品介绍</h2>
-      <p>
-        {{food.info}}
-      </p>
-    </div>
-    <div class="food_comment border-1px">
-      <h2 class="food_title">商品评价</h2>
-      <div class="comment_top border-1px">
-        <ul class="border-1px comment_top_list">
-          <li class="comment_all" @click="rateType=2">全部 <span>{{food.rating}}</span></li><li class="comment_recommend" @click="rateType=0">推荐</li><li class="comment_bad" @click="rateType=1">吐槽</li>
-        </ul>
-        <div class="select_wrapper clearfix">
-          <span class="icon-check_circle app_left" :class="{not_select:!selected}" @click="select"></span>
-          <p class="app_left">
-            只看有内容的评论
-          </p>
+      <div class="food_center border-1px">
+        <h2 class="food_title">商品介绍</h2>
+        <p>
+          {{food.info}}
+        </p>
+      </div>
+      <div class="food_comment border-1px">
+        <h2 class="food_title">商品评价</h2>
+        <div class="comment_top border-1px">
+          <ul class="border-1px comment_top_list">
+            <li class="comment_all" @click="rateType=2">全部 <span>{{food.rating}}</span></li><li class="comment_recommend" @click="rateType=0">推荐</li><li class="comment_bad" @click="rateType=1">吐槽</li>
+          </ul>
+          <div class="select_wrapper clearfix">
+            <span class="icon-check_circle app_left" :class="{not_select:!selected}" @click="select"></span>
+            <p class="app_left">
+              只看有内容的评论
+            </p>
+          </div>
         </div>
       </div>
-    </div>
-    <ul class="comment_list">
-      <li v-for="rating in food.ratings" :class="{none:(showHaveComment && !rating.text)}" v-if="rating.rateType==rateType || rateType==2">
-        <div class="comment_msg clearfix">
+      <ul class="comment_list">
+        <li v-for="rating in food.ratings" :class="{none:(showHaveComment && !rating.text)}" v-if="rating.rateType==rateType || rateType==2">
+          <div class="comment_msg clearfix">
               <span class="app_left">
                 {{rating.rateTime}}
               </span>
-          <img :src="rating.avatar" class="app_right">
+            <img :src="rating.avatar" class="app_right">
               <span class="app_right">
                 {{rating.username}}
               </span>
-        </div>
-        <div class="comment_content">
-          <span class="icon-thumb_up" v-if="rating.rateType===0"></span><span class="icon-thumb_down" v-else-if="rating.rateType===1"></span>{{rating.text}}
-        </div>
-      </li>
-    </ul>
+          </div>
+          <div class="comment_content">
+            <span class="icon-thumb_up" v-if="rating.rateType===0"></span><span class="icon-thumb_down" v-else-if="rating.rateType===1"></span>{{rating.text}}
+          </div>
+        </li>
+      </ul>
+    </div>
+    <div class="back icon-arrow_lift" @click="_hide"></div>
   </div>
 </template>
 
@@ -94,6 +96,13 @@
     },
     created() {
       this.$nextTick(() => {
+        this.initFoodList()
+      })
+    },
+    computed: {
+    },
+    methods: {
+      initFoodList() {
         if (!this.foodScroll) {
           // 购物车列表初始化
           this.foodScroll = new BScroll(this.$refs.foodWrapper, {
@@ -102,11 +111,10 @@
         } else {
           this.foodScroll.refresh()
         }
-      })
-    },
-    computed: {
-    },
-    methods: {
+      },
+      addFood(target) {
+        this.$emit('add', target)
+      },
       _hide() {
         this.$emit('hide', '')
       },
@@ -134,7 +142,7 @@
     z-index: 9;
     width: 100%;
     height: calc( 100% - 48px ) !important;
-    overflow: auto;
+    overflow: hidden;
     background: #f3f5f7;
     .back{
       position: fixed;
