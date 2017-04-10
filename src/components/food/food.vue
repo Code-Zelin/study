@@ -1,84 +1,79 @@
 <template>
-  <div class="food_wrapper" ref="foodWrapper">
-    <div>
-      <img :src="food.image">
-      <div class="food_top border-1px">
-        <div class="goods_detail_box">
-          <div class="goods_name">
-            {{food.name}}
-          </div>
-          <div class="goods_sale">
-          <span class="goods_sale_left">
-            月售{{food.sellCount}}份
-          </span>
-          <span>
-            好评率{{food.rating}}%
-          </span>
-          </div>
-          <div class="goods_price clearfix">
-          <span class="goods_price_new app_left">
-            <i class="app_left">¥</i>
-            <b class="app_left">
-              {{food.price}}
-            </b>
-          </span>
-          <span class="goods_price_old app_left" v-if="food.oldPrice">
-            <i class="app_left">¥</i>
-            <b class="app_left">
-              {{food.oldPrice}}
-            </b>
-          </span>
-            <div class="cartcontrol_wrapper app_right">
-              <cartcontrol :food="food" @add="addFood" :isDetail="isDetail"></cartcontrol>
+  <transition name="foodWrapper">
+    <div class="food_wrapper" v-show="showFlag" ref="foodWrapper">
+      <div>
+        <img :src="food.image">
+        <div class="food_top">
+          <div class="goods_detail_box">
+            <div class="goods_name">
+              {{food.name}}
+            </div>
+            <div class="goods_sale">
+            <span class="goods_sale_left">
+              月售{{food.sellCount}}份
+            </span>
+            <span>
+              好评率{{food.rating}}%
+            </span>
+            </div>
+            <div class="goods_price clearfix">
+            <span class="goods_price_new app_left">
+              <i class="app_left">¥</i>
+              <b class="app_left">
+                {{food.price}}
+              </b>
+            </span>
+            <span class="goods_price_old app_left" v-if="food.oldPrice">
+              <i class="app_left">¥</i>
+              <b class="app_left">
+                {{food.oldPrice}}
+              </b>
+            </span>
+              <div class="cartcontrol_wrapper app_right">
+                <cartcontrol :food="food" @add="addFood" :isDetail="isDetail"></cartcontrol>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      <div class="food_center border-1px">
-        <h2 class="food_title">商品介绍</h2>
-        <p>
-          {{food.info}}
-        </p>
-      </div>
-      <div class="food_comment border-1px">
-        <h2 class="food_title">商品评价</h2>
-        <div class="comment_top border-1px">
-          <ul class="border-1px comment_top_list">
-            <li class="comment_all" @click="rateType=2">全部 <span>{{food.rating}}</span></li><li class="comment_recommend" @click="rateType=0">推荐</li><li class="comment_bad" @click="rateType=1">吐槽</li>
-          </ul>
-          <div class="select_wrapper clearfix">
-            <span class="icon-check_circle app_left" :class="{not_select:!selected}" @click="select"></span>
-            <p class="app_left">
-              只看有内容的评论
+        <gap></gap>
+        <div v-if="food.info">
+          <div class="food_center border-1px">
+            <h2 class="food_title">商品介绍</h2>
+            <p>
+              {{food.info}}
             </p>
           </div>
+          <gap></gap>
         </div>
+        <rateList :rateNum="food.rating" :rateType="rateType" :rateTags="rateTags" @refresh="refreshScroll"></rateList>
+        <ul class="comment_list">
+          <li v-for="rating in food.ratings" :class="{none:(showHaveComment && !rating.text)}" v-if="rating.rateType==rateType || rateType==2">
+            <div class="comment_msg clearfix">
+          <span class="app_left">
+            {{rating.rateTime | formatDate}}
+          </span>
+              <img :src="rating.avatar" class="app_right">
+          <span class="app_right">
+            {{rating.username}}
+          </span>
+            </div>
+            <div class="comment_content">
+              <span class="icon-thumb_up" v-if="rating.rateType===0"></span><span class="icon-thumb_down" v-else-if="rating.rateType===1"></span>{{rating.text}}
+            </div>
+          </li>
+        </ul>
       </div>
-      <ul class="comment_list">
-        <li v-for="rating in food.ratings" :class="{none:(showHaveComment && !rating.text)}" v-if="rating.rateType==rateType || rateType==2">
-          <div class="comment_msg clearfix">
-              <span class="app_left">
-                {{rating.rateTime}}
-              </span>
-            <img :src="rating.avatar" class="app_right">
-              <span class="app_right">
-                {{rating.username}}
-              </span>
-          </div>
-          <div class="comment_content">
-            <span class="icon-thumb_up" v-if="rating.rateType===0"></span><span class="icon-thumb_down" v-else-if="rating.rateType===1"></span>{{rating.text}}
-          </div>
-        </li>
-      </ul>
+      <div class="back icon-arrow_lift" @click="_hide"></div>
     </div>
-    <div class="back icon-arrow_lift" @click="_hide"></div>
-  </div>
+  </transition>
 </template>
 
 <script type="text/ecmascript-6">
-  import vue from 'vue'
   import cartcontrol from 'components/cartcontrol/cartcontrol'
+  import rateList from 'components/rateList/rateList'
+  import gap from 'components/gap/gap'
   import BScroll from 'better-scroll'
+  import {formatDate} from 'common/js/date'
 
   export default {
     props: {
@@ -89,45 +84,75 @@
     data() {
       return {
         isDetail: true,
+        showFlag: false,
         rateType: 2,
-        selected: false,
-        showHaveComment: false
+        showHaveComment: true,
+        rateTags: [
+          {
+            text: '全部',
+            type: 2,
+            class: 'comment_all'
+          },
+          {
+            text: '推荐',
+            type: 0,
+            class: 'comment_recommend'
+          },
+          {
+            text: '吐槽',
+            type: 1,
+            class: 'comment_bad'
+          }
+        ]
       }
     },
     created() {
-      this.$nextTick(() => {
-        this.initFoodList()
-      })
     },
     computed: {
     },
     methods: {
-      initFoodList() {
-        if (!this.foodScroll) {
-          // 购物车列表初始化
-          this.foodScroll = new BScroll(this.$refs.foodWrapper, {
-            click: true
-          })
-        } else {
-          this.foodScroll.refresh()
+      show() {
+        this.showFlag = true
+        this.$nextTick(() => {
+          if (!this.foodScroll) {
+            // 购物车列表初始化
+            this.foodScroll = new BScroll(this.$refs.foodWrapper, {
+              click: true
+            })
+          } else {
+            this.foodScroll.scrollTo(0, 0)
+            this.foodScroll.refresh()
+          }
+        })
+      },
+      refreshScroll(event) {
+        if (event.select) {
+          this.showHaveComment = !this.showHaveComment
         }
+        if ((typeof event.type) === 'number') {
+          this.rateType = event.type
+        }
+        this.$nextTick(() => {
+          this.foodScroll.refresh()
+        })
       },
       addFood(target) {
         this.$emit('add', target)
       },
       _hide() {
-        this.$emit('hide', '')
-      },
-      _addShopcart() {
-        vue.set(this.food, 'count', 1)
-      },
-      select() {
-        this.selected = !this.selected
-        this.showHaveComment = !this.showHaveComment
+        this.showFlag = false
       }
     },
     components: {
-      cartcontrol
+      cartcontrol,
+      rateList,
+      gap
+    },
+    filters: {
+      formatDate(time) {
+        let date = new Date(time)
+        return formatDate(date, 'yyyy-MM-dd hh:mm')
+      }
     }
   }
 </script>
@@ -135,6 +160,32 @@
 <style lang="stylus" rel="stylesheet/stylus">
   @import "../../common/stylus/mixin.styl";
 
+  .foodWrapper-enter-active {
+    animation: fade-in .5s;
+  }
+  .foodWrapper-leave-active {
+    animation: fade-out .5s;
+  }
+  @keyframes fade-in {
+    0% {
+      opacity: 0;
+      transform: translateX(100%);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  @keyframes fade-out {
+    0% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    100% {
+      opacity: 0;
+      transform: translateX(100%);
+    }
+  }
   div.food_wrapper{
     position: fixed;
     top: 0;
@@ -146,14 +197,11 @@
     background: #f3f5f7;
     .back{
       position: fixed;
-      top: 18px;
-      left: 18px;
-      width: 40px;
-      height: 40px;
-      line-height: 40px;
+      top: 10px;
+      padding:10px;
+      font-size: 20px;
       text-align: center;
       border-radius: 50%;
-      background: rgba(7,17,27,.5);
       color: #fff;
     }
     img{
@@ -162,7 +210,6 @@
     .food_top{
       padding: 18px;
       background: #fff;
-      border-1px(rgba(7,17,27,0.1));
       .goods_detail_box{
         display: inline-block;
         font-size: 10px;
@@ -233,73 +280,15 @@
       margin-bottom: 6px;
     }
     .food_center{
-      border-1px(rgba(7,17,27,0.1), true)
+      border-1px(rgba(7,17,27,0.1))
       padding: 18px;
       background: #fff;
-      margin: 16px 0;
       p{
         font-size: 12px;
         padding: 8px;
         line-height: 24px;
         color: rgb(77,85,93);
         text-indent: 2em;
-      }
-    }
-    .food_comment{
-      border-1px(rgba(7,17,27,.1),true);
-      background: #fff;
-      padding: 18px;
-      padding-bottom: 0;
-      .comment_top{
-        border-1px(rgba(7,17,27,.1))
-        .comment_top_list{
-          border-1px(rgba(7,17,27,.1));
-          padding: 12px 0 18px;
-          li{
-            display: inline-block;
-            padding: 8px 12px;
-            font-size: 12px;
-            line-height: 16px;
-            border-radius: 3px;
-            margin-right: 8px;
-            &:last-child{
-              margin-right: 0;
-            }
-            span{
-              font-size: 8px;
-            }
-            &.comment_all{
-              background: rgb(0,160,220);
-            }
-            &.comment_recommend{
-              background: rgba(0,160,220,.2);
-              color: rgb(77,85,93);
-            }
-            &.comment_bad{
-               color: rgb(77,85,93);
-               background: rgba(77,85,93,.2);
-            }
-          }
-        }
-        .select_wrapper{
-          height: 24px;
-          padding: 12px 0;
-          font-size: 12px;
-          line-height: 24px;
-          color: rgb(147,153,159);
-          span{
-            margin-right: 4px;
-            font-size: 24px;
-            line-height: 24px;
-            color: rgb(0,160,220);
-            &.not_select{
-               color: rgb(147, 153,159);
-            }
-          }
-          p{
-            display: inline-block;
-          }
-        }
       }
     }
     .comment_list{
@@ -310,7 +299,7 @@
         padding: 16px 0;
         &.none{
            display: none;
-         }
+        }
         .comment_msg{
           color: rgb(147,153,159);
           font-size: 10px;

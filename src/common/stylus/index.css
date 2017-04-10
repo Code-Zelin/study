@@ -1,5 +1,6 @@
 @media (-webkit-max-device-pixel-ratio: 1.5), (max-device-pixel-ratio: 1.5) {
-  .border-1px:after {
+  .border-1px:after,
+  .border-1px:before {
     -webkit-transform: scaleY(0.7);
     -moz-transform: scaleY(0.7);
     -ms-transform: scaleY(0.7);
@@ -8,7 +9,8 @@
   }
 }
 @media (-webkit-max-device-pixel-ratio: 2), (max-device-pixel-ratio: 2) {
-  .border-1px:after {
+  .border-1px:after,
+  .border-1px:before {
     -webkit-transform: scaleY(0.5);
     -moz-transform: scaleY(0.5);
     -ms-transform: scaleY(0.5);

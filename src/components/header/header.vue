@@ -194,7 +194,7 @@
     position: fixed;
     top:0;
     left:0;
-    z-index:9;
+    z-index:100;
     background: rgba(7,17,27,.8);
     box-sizing: border-box;
     .mask_content{

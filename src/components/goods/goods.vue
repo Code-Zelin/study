@@ -55,9 +55,7 @@
       </ul>
     </div>
     <vfooter ref="shopcart"  :deliveryPrice="seller.deliveryPrice" :minPrice="seller.minPrice" :selectFoods="selectGoods"></vfooter>
-    <transition name="foodWrapper">
-      <foodWrapper :food="food" v-show="showFood" @add="addFood" ref="foodWrapper" @hide="hideFood"></foodWrapper>
-    </transition>
+    <foodWrapper :food="food" @add="addFood" ref="foodWrapper"></foodWrapper>
   </div>
 </template>
 
@@ -79,8 +77,7 @@
         goods: [],
         listHeight: [],
         scrollY: 0,
-        food: {},
-        showFood: false
+        food: {}
       }
     },
     created() {
@@ -169,10 +166,7 @@
       },
       _food(element) {
         this.food = element
-        this.showFood = true
-      },
-      hideFood(target) {
-        this.showFood = false
+        this.$refs.foodWrapper.show()
       }
     }
   }
@@ -185,20 +179,6 @@
     display: flex
     width: 100%
     height: calc(100% - 174px - 44px)
-    .foodWrapper-enter-active
-      animation: fade-in .5s
-    .foodWrapper-leave-active
-      animation: fade-out .5s
-    @keyframes fade-in
-      0%
-        opacity: 0
-      100%
-        opacity: 1
-    @keyframes fade-out
-      0%
-        opacity: 1
-      100%
-        opacity: 0;
     &>div
       height: 100%
       overflow: hidden
